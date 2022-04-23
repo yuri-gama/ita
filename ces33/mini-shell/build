@@ -1,0 +1,1 @@
+gcc main.c minishell.c -std=c11 -pedantic -Wall -Wextra -O0 -g -fsanitize=address,leak,undefined -o run

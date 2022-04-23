@@ -1,0 +1,4 @@
+# cess33 
+# ignore txt files
+/ces33/*.txt
+/ces33/run
