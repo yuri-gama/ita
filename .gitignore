@@ -1,4 +1,4 @@
 # cess33 
-# ignore txt files
-./ces33/*.txt
-./ces33/run
+# ignore txt files inside mini-shell && run file
+./ces33/mini-shell/*.txt
+./ces33/mini-shell/run
