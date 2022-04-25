@@ -6,7 +6,7 @@ int main(){
   char *command, **tokens;
   int size_command;
   while(true){
-    // printf("star while\n");
+    printf("$ ");
     size_command = 0;
     command = read_command();
     tokens = parse_command(command, &size_command);
@@ -15,7 +15,6 @@ int main(){
 
     free(tokens);
     free(command);
-    //wait_and_free(command);
   }
   return 0;
 }

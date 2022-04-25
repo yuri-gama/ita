@@ -14,9 +14,6 @@ char* read_command(){
     i++;
   }
   
-  //fgets(str, 100, stdin);
-
-
   str = (char *) realloc(str, sizeof(char)*i);
   str[i-1] = '\0';
 
@@ -35,7 +32,6 @@ char** parse_command(char *str, int *i){
 
   while(pt != NULL){
     (*i)++;
-//    printf("entrou: %d \n", *i);
     if(*i == 1)
       command = (char **) malloc(sizeof(char *));
     else
@@ -51,7 +47,6 @@ char** parse_command(char *str, int *i){
 bool spawn_processes(char **tokens, int size_tokens){
   char **all, **argv;
   char *stdout_fd, *stdin_fd;
-  // pt = *tokens;
   int **pipes = (int **) malloc(sizeof(int *));
   int FD_stdout, FD_stdin;
 
@@ -70,13 +65,9 @@ bool spawn_processes(char **tokens, int size_tokens){
     pid_t pid_child = fork();
     if(pid_child == -1)
       perror("fork");
-    // else
-    //   printf("forked and [count]: %d and [pid]: %d\n", count, pid_child);
 
     if(pid_child != 0){
-      // printf("calling wait [pid]: %d\n", pid_child);
       wait(&status[count]);
-      // printf("waited\n");
     }
 
     if(true){
@@ -91,7 +82,6 @@ bool spawn_processes(char **tokens, int size_tokens){
         }
       }
     else{
-        // close(pipes[count-1][1]);
         if(pid_child == 0)
           dup2(pipes[count-1][0], STDIN_FILENO);
         close(pipes[count-1][0]);
@@ -101,7 +91,6 @@ bool spawn_processes(char **tokens, int size_tokens){
       if(count + 1 == size_tokens){
         stdout_fd = get_stdout(all);
         if(stdout_fd != NULL && pid_child == 0){
-          // printf("func: %s\nfile_output:%s\n", all[0], stdout_fd);
           FD_stdout = open(stdout_fd, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR);
           dup2(FD_stdout, STDOUT_FILENO);
           close(FD_stdout);

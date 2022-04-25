@@ -13,8 +13,6 @@
 
 char* read_command();
 
-void wait_and_free(char *);
-
 char** parse_command(char *, int *);
 
 //bool check_exit(char **);
