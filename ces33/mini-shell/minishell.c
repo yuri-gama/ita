@@ -20,10 +20,6 @@ char* read_command(){
   return str;
 }
 
-void wait_and_free(char *str){
-  free(str);
-}
-
 char** parse_command(char *str, int *i){
   char* pt = str;
   char **command = NULL;
@@ -123,6 +119,7 @@ bool spawn_processes(char **tokens, int size_tokens){
   return true;
 
 }
+
 char** get_all(char *str){
   char *pt = strtok(str, " ");
   char **all_vec = (char **) malloc(sizeof(char *)); 
@@ -138,6 +135,7 @@ char** get_all(char *str){
   all_vec[count] = NULL;
   return all_vec;
 }
+
 char ** get_args(char** all_vec){
   int i = 0;
   char **args = (char **) malloc(sizeof(char *));
