@@ -14,6 +14,27 @@
 // color minishell
 #define GREEN(str) "\x1b[95m" str "\x1b[0m"
 
+typedef struct process{
+   struct process *next;
+   char **argv;
+   pid_t pid;
+   char completed;
+   char stopped;
+   int status;
+} process;
+
+typedef struct job{
+  struct job *next;
+  char *command;
+  process *first_process;
+  pid_t pgid;
+  char notified;
+//  struct termios tmodes;
+  int stdin, stdout, stderr;
+} job;
+
+void clear_console();
+
 char* read_command(); // Get input from command line
 
 char** parse_command(char *, int *); // Parse command line into tokens, separator: '|'

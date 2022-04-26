@@ -5,6 +5,7 @@
 int main(){
   char *command, **tokens;
   int size_command;
+  clear_console();
   while(true){
     printf(GREEN("$ "));
     size_command = 0;

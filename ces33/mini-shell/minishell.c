@@ -1,5 +1,17 @@
 #include "minishell.h"
 
+void clear_console(){
+  pid_t pid_child = fork();
+  int status;
+  char *args[] = {"/bin/clear", NULL};
+  if(pid_child == 0){
+    execv("/bin/clear", args);
+    perror("execv");
+  }
+
+  wait(&status);
+}
+
 char* read_command(){
   char *str, c;
   int i = 1;
