@@ -49,7 +49,7 @@ bool spawn_processes(char **tokens, int size_tokens){
   int *status = (int *) malloc(sizeof(int)*size_tokens);
   
   for(int count = 0; count < size_tokens; count++){
-    
+        
     if(count + 1 < size_tokens){
       pipes = (int **) realloc(pipes, (count+1)*sizeof(int *));
       pipes[count] = (int *) malloc(2*sizeof(int));

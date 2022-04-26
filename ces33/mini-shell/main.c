@@ -6,7 +6,7 @@ int main(){
   char *command, **tokens;
   int size_command;
   while(true){
-    printf("$ ");
+    printf(GREEN("$ "));
     size_command = 0;
     command = read_command();
     tokens = parse_command(command, &size_command);

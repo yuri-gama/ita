@@ -11,6 +11,9 @@
 #define S_IRUSR 00400
 #define S_IWUSR 00200
 
+// color minishell
+#define GREEN(str) "\x1b[95m" str "\x1b[0m"
+
 char* read_command(); // Get input from command line
 
 char** parse_command(char *, int *); // Parse command line into tokens, separator: '|'
