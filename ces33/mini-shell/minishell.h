@@ -47,4 +47,6 @@ char * get_stdin(char **); // It gets path to create FD_stdin
 
 void free_process(process *);
 
+void free_process_pt(process *);
+
 #endif

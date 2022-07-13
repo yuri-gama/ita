@@ -192,11 +192,16 @@ char * get_stdin(char **str){
   return NULL;
 }
 
-void free_process(process * pt){
+void free_process(process *pt){
+  free_process_pt(pt);
+  pt = NULL;
+}
+
+void free_process_pt(process * pt){
   if(pt == NULL){
     return;
   }
-  free_process(pt->next);
+  free_process_pt(pt->next);
   free(pt->argv);
   free(pt->all);
   free(pt);
