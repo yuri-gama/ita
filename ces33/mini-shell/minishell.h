@@ -16,11 +16,10 @@
 
 typedef struct process{
    struct process *next;
+   char *token;
    char **argv;
-   pid_t pid;
-   char completed;
-   char stopped;
-   int status;
+   char **all;
+   int stdin, stdout, status;
 } process;
 
 typedef struct job{
@@ -30,20 +29,22 @@ typedef struct job{
   pid_t pgid;
   char notified;
 //  struct termios tmodes;
-  int stdin, stdout, stderr;
+  int stdin, stdout;
 } job;
 
 void clear_console();
 
 char* read_command(); // Get input from command line
 
-char** parse_command(char *, int *); // Parse command line into tokens, separator: '|'
+process* parse_command(char *, int *); // Parse command line into tokens, separator: '|'
 
-bool spawn_processes(char **, int); // Spawn each token as a proccess
+bool spawn_processes(process*, int, job *); // Spawn each token as a proccess
 
 char** get_all(char *); // It breaks token by white spaces
 char ** get_args(char **); // It gets args with args[0] = path && arg[last] = NULL
 char * get_stdout(char **); // It gets path to create FD_stdout
 char * get_stdin(char **); // It gets path to create FD_stdin
+
+void free_process(process *);
 
 #endif

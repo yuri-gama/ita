@@ -32,34 +32,41 @@ char* read_command(){
   return str;
 }
 
-char** parse_command(char *str, int *i){
+process* parse_command(char *str, int *i){
   char* pt = str;
-  char **command = NULL;
+  process *lprocess, *p;
 
   pt = strtok(str, "|");
 
   while(pt != NULL){
     (*i)++;
-    if(*i == 1)
-      command = (char **) malloc(sizeof(char *));
-    else
-      command = (char **) realloc(command, sizeof(char *)*i[0]);
-    
-    command[*i-1] = pt;
+    if(*i == 1){
+      lprocess = (struct process *) malloc(sizeof (struct process) );
+      p = lprocess;
+    }
+    else{
+      p->next = (struct process *) malloc(sizeof (struct process) );
+      p = p->next;
+    }
+
+    p->token = pt;  
+
     pt = strtok(NULL, "|");
   }
 
-  return command;
+  p->next = NULL;
+
+  return lprocess;
 }
 
-bool spawn_processes(char **tokens, int size_tokens){
-  char **all, **argv;
+bool spawn_processes(process *tokens, int size_tokens, job *rjob){
   char *stdout_fd, *stdin_fd;
   int **pipes = (int **) malloc(sizeof(int *));
-  int FD_stdout, FD_stdin;
-
-  int *status = (int *) malloc(sizeof(int)*size_tokens);
+  process *pt;
   
+  rjob->first_process = tokens;
+  pt = rjob->first_process;
+
   for(int count = 0; count < size_tokens; count++){
         
     if(count + 1 < size_tokens){
@@ -68,25 +75,25 @@ bool spawn_processes(char **tokens, int size_tokens){
       pipe(pipes[count]);
     }
     
-    all = get_all(tokens[count]);
-    argv = get_args(all);
+    pt->all = get_all(pt->token);
+    pt->argv = get_args(pt->all);
     pid_t pid_child = fork();
     if(pid_child == -1)
       perror("fork");
 
     if(pid_child != 0){
-      wait(&status[count]);
+      wait(&pt->status);
     }
 
     if(true){
       // stdin logic
       if(count == 0){
-       stdin_fd = get_stdin(all);
+       stdin_fd = get_stdin(pt->all);
         
         if(stdin_fd != NULL && pid_child == 0){
-          FD_stdin = open(stdin_fd, O_RDONLY);
-          dup2(FD_stdin, STDIN_FILENO);
-          close(FD_stdin);
+          rjob->stdin = open(stdin_fd, O_RDONLY);
+          dup2(rjob->stdin, STDIN_FILENO);
+          close(rjob->stdin);
         }
       }
     else{
@@ -97,11 +104,11 @@ bool spawn_processes(char **tokens, int size_tokens){
 
       // stdout logic
       if(count + 1 == size_tokens){
-        stdout_fd = get_stdout(all);
+        stdout_fd = get_stdout(pt->all);
         if(stdout_fd != NULL && pid_child == 0){
-          FD_stdout = open(stdout_fd, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR);
-          dup2(FD_stdout, STDOUT_FILENO);
-          close(FD_stdout);
+          rjob->stdout = open(stdout_fd, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR);
+          dup2(rjob->stdout, STDOUT_FILENO);
+          close(rjob->stdout);
         }
       }
     else{
@@ -112,12 +119,12 @@ bool spawn_processes(char **tokens, int size_tokens){
           close(pipes[count][1]);
 
       if(pid_child == 0){
-        execv(all[0], argv);
+        execv(pt->all[0], pt->argv);
         perror("execve");
       }
      
     }
- 
+    pt = pt->next;
   }
 
         
@@ -126,7 +133,6 @@ bool spawn_processes(char **tokens, int size_tokens){
       free(pipes[i]);
 
   free(pipes);
-  free(status);
 
   return true;
 
@@ -184,4 +190,14 @@ char * get_stdin(char **str){
       return str[i];
   
   return NULL;
+}
+
+void free_process(process * pt){
+  if(pt == NULL){
+    return;
+  }
+  free_process(pt->next);
+  free(pt->argv);
+  free(pt->all);
+  free(pt);
 }

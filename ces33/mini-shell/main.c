@@ -3,18 +3,20 @@
 #include "minishell.h"
 
 int main(){
-  char *command, **tokens;
+  char *command;
+  process *lprocess = NULL;
+  job running_job;
   int size_command;
   clear_console();
   while(true){
     printf(GREEN("$ "));
     size_command = 0;
     command = read_command();
-    tokens = parse_command(command, &size_command);
+    lprocess = parse_command(command, &size_command);
+    
+    spawn_processes(lprocess, size_command, &running_job);
 
-    spawn_processes(tokens, size_command);
-
-    free(tokens);
+    free_process(lprocess);
     free(command);
   }
   return 0;
