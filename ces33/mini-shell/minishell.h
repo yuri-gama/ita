@@ -25,6 +25,7 @@ typedef struct process{
 typedef struct job{
   struct job *next;
   char *command;
+  int size_command;
   process *first_process;
   pid_t pgid;
   char notified;
@@ -38,7 +39,7 @@ char* read_command(); // Get input from command line
 
 process* parse_command(char *, int *); // Parse command line into tokens, separator: '|'
 
-bool spawn_processes(process*, int, job *); // Spawn each token as a proccess
+bool spawn_processes(process*, job *); // Spawn each token as a proccess
 
 char** get_all(char *); // It breaks token by white spaces
 char ** get_args(char **); // It gets args with args[0] = path && arg[last] = NULL

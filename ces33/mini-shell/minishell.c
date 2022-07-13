@@ -59,7 +59,7 @@ process* parse_command(char *str, int *i){
   return lprocess;
 }
 
-bool spawn_processes(process *tokens, int size_tokens, job *rjob){
+bool spawn_processes(process *tokens, job *rjob){
   char *stdout_fd, *stdin_fd;
   int **pipes = (int **) malloc(sizeof(int *));
   process *pt;
@@ -67,9 +67,9 @@ bool spawn_processes(process *tokens, int size_tokens, job *rjob){
   rjob->first_process = tokens;
   pt = rjob->first_process;
 
-  for(int count = 0; count < size_tokens; count++){
+  for(int count = 0; count < rjob->size_command; count++){
         
-    if(count + 1 < size_tokens){
+    if(count + 1 < rjob->size_command){
       pipes = (int **) realloc(pipes, (count+1)*sizeof(int *));
       pipes[count] = (int *) malloc(2*sizeof(int));
       pipe(pipes[count]);
@@ -103,7 +103,7 @@ bool spawn_processes(process *tokens, int size_tokens, job *rjob){
       }
 
       // stdout logic
-      if(count + 1 == size_tokens){
+      if(count + 1 == rjob->size_command){
         stdout_fd = get_stdout(pt->all);
         if(stdout_fd != NULL && pid_child == 0){
           rjob->stdout = open(stdout_fd, O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR);
@@ -115,7 +115,7 @@ bool spawn_processes(process *tokens, int size_tokens, job *rjob){
         if(pid_child == 0)
           dup2(pipes[count][1], STDOUT_FILENO);
       }
-        if(count + 1 != size_tokens)
+        if(count + 1 != rjob->size_command)
           close(pipes[count][1]);
 
       if(pid_child == 0){
@@ -128,8 +128,8 @@ bool spawn_processes(process *tokens, int size_tokens, job *rjob){
   }
 
         
-  if(size_tokens > 1)
-    for(int i = 0; i < size_tokens-1; i++)
+  if(rjob->size_command > 1)
+    for(int i = 0; i < rjob->size_command-1; i++)
       free(pipes[i]);
 
   free(pipes);
