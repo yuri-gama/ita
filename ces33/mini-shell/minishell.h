@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <termios.h>
 
 #define S_IRUSR 00400
 #define S_IWUSR 00200
@@ -14,11 +15,18 @@
 // color minishell
 #define GREEN(str) "\x1b[95m" str "\x1b[0m"
 
+pid_t shell_pgid;
+struct termios shell_tmodes;
+int shell_terminal;
+int shell_is_interactive;
+
 typedef struct process{
    struct process *next;
    char *token;
    char **argv;
    char **all;
+   char completed;             /* true if process has completed */
+   char stopped;               /* true if process has stopped */
    int status;
 } process;
 
@@ -29,7 +37,7 @@ typedef struct job{
   process *first_process;
   pid_t pgid;
   char notified;
-//  struct termios tmodes;
+  struct termios tmodes;
   int stdin, stdout;
 } job;
 
@@ -49,5 +57,11 @@ char * get_stdin(char **); // It gets path to create FD_stdin
 void free_process(process *);
 
 void free_process_pt(process *);
+
+void stop_handler(int);
+
+job *find_job (pid_t pgid, job *);
+int job_is_stopped (job *j);
+int job_is_completed (job *j);
 
 #endif
