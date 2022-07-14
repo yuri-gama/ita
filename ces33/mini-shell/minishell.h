@@ -19,7 +19,7 @@ typedef struct process{
    char *token;
    char **argv;
    char **all;
-   int stdin, stdout, status;
+   int status;
 } process;
 
 typedef struct job{
