@@ -17,6 +17,8 @@ char* read_command(){
   int i = 1;
   str = (char *) malloc(sizeof(char));
   while(true){
+    if(termination_prog)
+      break;
    scanf("%c", &c);
     if(c == '\n')
       break;
@@ -49,6 +51,8 @@ process* parse_command(char *str, int *i){
       p = p->next;
     }
 
+    initialize_process(p);
+
     p->token = pt;  
 
     pt = strtok(NULL, "|");
@@ -57,6 +61,13 @@ process* parse_command(char *str, int *i){
   p->next = NULL;
 
   return lprocess;
+}
+
+void initialize_process(process *pt){
+   pt->next = NULL;
+   pt->argv = NULL;
+   pt->token = NULL;
+   pt->all = NULL;
 }
 
 bool spawn_processes(process *tokens, job *rjob){
@@ -198,13 +209,14 @@ void free_process(process *pt){
 }
 
 void free_process_pt(process * pt){
+  printf("testando");
   if(pt == NULL){
     return;
   }
+  printf("freee");
   free_process_pt(pt->next);
   free(pt->argv);
   free(pt->all);
-  free(pt);
 }
 
 /* Find the active job with the indicated pgid.  */
@@ -238,4 +250,47 @@ int job_is_completed (job *j)
     if (!p->completed)
       return 0;
   return 1;
+}
+
+void init_shell () {
+
+  /* See if we are running interactively.  */
+  shell_terminal = STDIN_FILENO;
+  shell_is_interactive = isatty (shell_terminal);
+
+  if (shell_is_interactive)
+    {
+      /* Loop until we are in the foreground.  */
+      while (tcgetpgrp (shell_terminal) != (shell_pgid = getpgrp ()))
+        kill (- shell_pgid, SIGTTIN);
+
+      /* Ignore interactive and job-control signals.  */
+      signal (SIGINT, SIG_IGN);
+      signal (SIGQUIT, SIG_IGN);
+      signal (SIGTSTP, SIG_IGN);
+      signal (SIGTTIN, SIG_IGN);
+      signal (SIGTTOU, SIG_IGN);
+      signal (SIGCHLD, SIG_IGN);
+
+      /* Put ourselves in our own process group.  */
+      shell_pgid = getpid ();
+      if (setpgid (shell_pgid, shell_pgid) < 0)
+        {
+          perror ("Couldn't put the shell in its own process group");
+          exit (1);
+        }
+
+      /* Grab control of the terminal.  */
+      tcsetpgrp (shell_terminal, shell_pgid);
+
+      /* Save default terminal attributes for shell.  */
+      tcgetattr (shell_terminal, &shell_tmodes);
+    }
+}
+
+void stop_handler(int signum){
+  signal(signum, stop_handler); // to get the next time
+  termination_prog = true;
+  printf("peguei o sinal\n");
+  printf("termination_prog: %d\n", termination_prog);
 }

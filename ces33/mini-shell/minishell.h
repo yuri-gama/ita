@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <signal.h>
 
 #define S_IRUSR 00400
 #define S_IWUSR 00200
@@ -19,6 +20,7 @@ pid_t shell_pgid;
 struct termios shell_tmodes;
 int shell_terminal;
 int shell_is_interactive;
+bool termination_prog;
 
 typedef struct process{
    struct process *next;
@@ -54,6 +56,8 @@ char ** get_args(char **); // It gets args with args[0] = path && arg[last] = NU
 char * get_stdout(char **); // It gets path to create FD_stdout
 char * get_stdin(char **); // It gets path to create FD_stdin
 
+void initialize_process(process *);
+
 void free_process(process *);
 
 void free_process_pt(process *);
@@ -63,5 +67,6 @@ void stop_handler(int);
 job *find_job (pid_t pgid, job *);
 int job_is_stopped (job *j);
 int job_is_completed (job *j);
+void init_shell();
 
 #endif
